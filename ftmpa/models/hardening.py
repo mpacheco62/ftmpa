@@ -1,3 +1,10 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+# *****************************************************************************
+# ******    Hardenings models                                            ******
+# ******    AUTH: Matías Pacheco                                         ******
+# *****************************************************************************
+
 from numpy import exp
 import numpy as np
 from abc import ABC, abstractmethod

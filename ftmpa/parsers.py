@@ -1,7 +1,7 @@
 import xml.etree.ElementTree as ET
 import numpy as np
 
-from .experiments import ExpdataAnisotropic
+from .experiments import ExpDataAnisotropic
 from .common import load_sheet_angle, load_stress_voigt, rot_sheet_angle
 
 
@@ -66,6 +66,6 @@ def parser_test(test: ET.Element):
         var, text = parser_modelData(elem)
         model_data[var] = parser_function(text=text)
 
-    return ExpdataAnisotropic(x=data[...,x_column], y=data[...,y_column],
+    return ExpDataAnisotropic(x=data[...,x_column], y=data[...,y_column],
                     load_state=load_state, rotate_result=rot,
                     model_data=model_data, w=w)

@@ -1,3 +1,10 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+# *****************************************************************************
+# ******    Elasticity models                                            ******
+# ******    AUTH: Matías Pacheco                                         ******
+# *****************************************************************************
+
 import numpy as np
 from abc import ABC, abstractmethod
 

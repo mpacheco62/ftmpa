@@ -1,3 +1,10 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+# *****************************************************************************
+# ******    Handler elasticity model                                     ******
+# ******    AUTH: Matías Pacheco                                         ******
+# *****************************************************************************
+
 from abc import ABC, abstractmethod
 import numpy as np
 

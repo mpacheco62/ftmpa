@@ -1,11 +1,17 @@
+"""
+main.py
+====================================
+The core module of my example project
+"""
+
 from typing import Union
 import numpy as np
 from scipy.interpolate import interp1d
 
 from .models.handlers.autoModels import AutoModels
 
-
-class ExpdataAnisotropic:
+class ExpData:
+    """An example docstring for a class definition."""
     x: np.ndarray
     y: np.ndarray
     w: np.ndarray
@@ -33,21 +39,11 @@ class ExpdataAnisotropic:
         self.y = y
         self.w = w
 
-    # def __str__(self):
-    #     text = ""
-    #     text += f'x: {str(self.x)}\n'
-    #     text += f'y: {str(self.y)}\n'
-    #     text += f'w: {str(self.w)}\n'
-    #     for var, model in self.model_data.items():
-    #         text += f"fun {var}: {model}\n"
-    #     return text
-
     def from_model(self, stress, strain):
         x_from_model = self.model_data['x']
         y_from_model = self.model_data['y']
         fun_from_model = interp1d(x_from_model(stress=stress, strain=strain),
                                   y_from_model(stress=stress, strain=strain),
-                                #   )
                                   fill_value =np.nan,
                                   bounds_error=False)
         # print('x_model:', x_from_model(stress=stress, strain=strain))
@@ -57,23 +53,56 @@ class ExpdataAnisotropic:
         x_model = self.x
         return x_model, y_model
         
-    def residual(self, stress, strain, nrmsd=True):
+    def residual(self, stress, strain, nrmsd=True, exponent:float=2):
         x_model, y_model = self.from_model(stress, strain)
         res = self.y - y_model
         if nrmsd:
             delta_y = np.amax(res)-np.amin(res)
-            res = res/(len(self.y)**0.5)
+            res = res/(len(self.y)**(1.0/exponent))
             res = res/delta_y
         if self.w is not None: res = self.w*res
         return res
 
-class ExpStateAnisotropic:
+class ExpState:
     model: AutoModels
     load_state: np.ndarray
-    results_test: dict[str, ExpdataAnisotropic]
+    results_test: dict[str, ExpData]
     rotate_test: Union[np.ndarray, None]
 
-    def __init__(self, model: AutoModels, load_state: np.ndarray, results_test: dict[str, ExpdataAnisotropic], rotate_test: Union[np.ndarray, None]=None):
+    def __init__(self, model: AutoModels, load_state: np.ndarray, results_test: dict[str, ExpData]):
+        self.model = model
+        self.load_state = load_state
+        self.results_test = results_test
+
+    def data_to_graph(self, param: dict[str, float]):
+        stress, strain = self.model.calc(param, self.load_state)
+
+        data = {}
+        for exp_name, test in self.results_test.items():
+            data[exp_name] = {}
+            data[exp_name]['x_model'], data[exp_name]['y_model'] = test.from_model(stress=stress, strain=strain)
+            data[exp_name]['x_exp'], data[exp_name]['y_exp'] = (test.x, test.y) 
+
+        return data
+
+    def residual(self, param):
+        stress, strain = self.model.calc(param, self.load_state)
+        if np.logical_or(np.isnan(stress), np.isnan(strain)).any():
+            return np.nan
+
+        res = []
+        for exp_name, test in self.results_test.items():
+            res.append(test.residual(stress=stress, strain=strain))
+        
+        return np.concatenate(res)
+
+class ExpStateRotated:
+    model: AutoModels
+    load_state: np.ndarray
+    results_test: dict[str, ExpData]
+    rotate_test: Union[np.ndarray, None]
+
+    def __init__(self, model: AutoModels, load_state: np.ndarray, results_test: dict[str, ExpData], rotate_test: Union[np.ndarray, None]=None):
         self.model = model
         self.load_state = load_state
         self.rotate_test = rotate_test

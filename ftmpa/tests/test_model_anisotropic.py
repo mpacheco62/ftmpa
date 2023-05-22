@@ -12,7 +12,7 @@ from numpy.testing import assert_almost_equal
 from scipy.linalg import expm
 from scipy.interpolate import interp1d
 
-from ..models.handlers.autoModels import AutoAnisotropicAsociated
+from ..models.handlers.autoModels import AutoElastoPlasticAsociatedStrainDependent
 from ..models.handlers.elasticity import HandlerHooke
 from ..models.handlers.hardening import HandlerVoceMod
 from ..models.handlers.yields import HandlerCazacuVar, HandlerVonMises
@@ -48,7 +48,7 @@ class TestHandlerAnisotropicAsociated_VonMises(TestCase):
         self.hhard = HandlerVoceMod("sig0", "k", "q", "n")
         self.hyield = HandlerVonMises()
         self.helasticity = HandlerHooke("E", "nu")
-        self.ani_model = AutoAnisotropicAsociated(self.hyield, self.hhard, self.helasticity)
+        self.ani_model = AutoElastoPlasticAsociatedStrainDependent(self.hyield, self.hhard, self.helasticity)
         
     def test_vonmises_curve_0(self):
         ani_model = self.ani_model
@@ -147,7 +147,7 @@ class TestHandlerAnisotropicAsociated_Cazacu_Copper(TestCase):
                                        a = "a"
                                        )
         self.helasticity = HandlerHooke("E", "nu")
-        self.ani_model = AutoAnisotropicAsociated(self.hyield,
+        self.ani_model = AutoElastoPlasticAsociatedStrainDependent(self.hyield,
                                                      self.hhard,
                                                      self.helasticity,
                                                      strain_plas_max=0.3)
@@ -246,7 +246,7 @@ class TestHandlerAnisotropicAsociated_Cazacu_MG_AZ31(TestCase):
                                        a = "a"
                                        )
         self.helasticity = HandlerHooke("E", "nu")
-        self.ani_model = AutoAnisotropicAsociated(self.hyield,
+        self.ani_model = AutoElastoPlasticAsociatedStrainDependent(self.hyield,
                                                      self.hhard,
                                                      self.helasticity,
                                                      strain_plas_max=0.8,
