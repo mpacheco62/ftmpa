@@ -1,0 +1,488 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+    <title>Isotropic Elastoplastic Fitting &#8212; ftmpa 00.00.01 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/alabaster.css" />
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/sphinx_highlight.js"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="prev" title="Elastic Fitting" href="elastic_fitting.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="isotropic-elastoplastic-fitting">
+<h1><a class="toc-backref" href="#id2" role="doc-backlink">Isotropic Elastoplastic Fitting</a><a class="headerlink" href="#isotropic-elastoplastic-fitting" title="Permalink to this heading">¶</a></h1>
+<p>Here is more Restructuredtext and Sphinx directives.</p>
+<nav class="contents" id="table-of-contents">
+<p class="topic-title">Table of Contents</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="#isotropic-elastoplastic-fitting" id="id2">Isotropic Elastoplastic Fitting</a></p>
+<ul>
+<li><p><a class="reference internal" href="#ajuste-de-traccion-y-biaxial" id="id3">Ajuste de tracción y biaxial</a></p></li>
+</ul>
+</li>
+</ul>
+</nav>
+<hr class="docutils" />
+<p>Para ajustar el endurecimiento isotropo se utiliza la ley de Voce y se asume un esfuerzo equivalente de Von Mises.</p>
+<div class="math notranslate nohighlight">
+\[Y(\bar{\epsilon}^p) = \sigma_0 + Q\left[1-\exp(-n\bar{\epsilon}^p)\right]\]</div>
+<p>Donde <span class="math notranslate nohighlight">\(\bar{\epsilon}^p\)</span> es la deformación plástica efectica, <span class="math notranslate nohighlight">\(\sigma_0\)</span> es el límite elástico y finalmente
+<span class="math notranslate nohighlight">\(n\)</span> y <span class="math notranslate nohighlight">\(Q\)</span> son constantes del modelo.</p>
+<p>Para realizar las curvas en cada estado de tensión se asume un rango de deformación plástica efectiva, que el estado de tensión
+es proporcional a un estado de referencia y que la función de fluencia
+sea homogénea de grado 1. Debido a lo anterior se asume un estado de esfuerzos de referencia en base a un multiplicador <span class="math notranslate nohighlight">\(\beta\)</span>.</p>
+<div class="math notranslate nohighlight">
+\[\boldsymbol{\sigma} = \beta\boldsymbol{\sigma_{ref}}\]</div>
+<p>Por lo tanto para una deformación plástica efectiva <span class="math notranslate nohighlight">\(\bar{\epsilon}^p\)</span> dada se puede calcular el esfuerzo en base al
+esfuerzo equivalente <span class="math notranslate nohighlight">\(\sigma_{eq}\)</span>.</p>
+<div class="math notranslate nohighlight">
+\[\sigma_{eq}(\boldsymbol\sigma) - Y(\bar{\epsilon}^p) = 0 \implies \sigma_{eq}(\beta\boldsymbol\sigma_{ref}) = \beta\sigma_{eq}(\boldsymbol\sigma_{ref}) = Y(\bar{\epsilon}^p)\]</div>
+<div class="math notranslate nohighlight">
+\[\beta = \frac{Y(\bar{\epsilon}^p)}{\sigma_{eq}(\boldsymbol\sigma_{ref})}\]</div>
+<div class="math notranslate nohighlight">
+\[\boldsymbol{\sigma} = \frac{Y(\bar{\epsilon}^p)}{\sigma_{eq}(\boldsymbol\sigma_{ref})} \boldsymbol{\sigma_{ref}}\]</div>
+<p>De esta forma se obtiene el estado de tensión con tan solo un el estado de tensión de referencia para cualquier deformación plástica efectiva.</p>
+<p>Para la obtener la deformación se ocupa la regla de flujo además de una propiedad de las funciones homogéneas de grado 1
+<span class="math notranslate nohighlight">\(\frac{\partial\sigma_{eq}}{\partial \boldsymbol\sigma} (\boldsymbol\sigma) = \frac{\partial\sigma_{eq}}{\partial \boldsymbol\sigma} (\beta\boldsymbol\sigma_{ref}) = \frac{\partial\sigma_{eq}}{\partial \boldsymbol\sigma} (\boldsymbol\sigma_{ref}) = cte\)</span>.
+Ademas, se asume que con la función de fluencia utilizada se cumple <span class="math notranslate nohighlight">\(\dot\lambda = \dot{\bar{\epsilon}}^p\)</span>.</p>
+<div class="math notranslate nohighlight">
+\[\dot{\boldsymbol\epsilon}^p = \dot{\bar{\epsilon}}^p \frac{\partial\sigma_{eq}}{\partial \boldsymbol\sigma}(\boldsymbol\sigma) = \dot{\bar{\epsilon}}^p\frac{\partial\sigma_{eq}}{\partial \boldsymbol\sigma}(\boldsymbol\sigma_{ref})\]</div>
+<div class="math notranslate nohighlight">
+\[\boldsymbol{\epsilon}^p = \frac{\partial\sigma_{eq}}{\partial \boldsymbol\sigma}(\boldsymbol\sigma_{ref})  \int_0^{\bar{\epsilon}^p} \dot{\bar{\epsilon}}^p = \bar{\epsilon}^p\frac{\partial\sigma_{eq}}{\partial \boldsymbol\sigma}(\boldsymbol\sigma_{ref})\]</div>
+<p>Finalmente se obtiene la deformación total <span class="math notranslate nohighlight">\(\boldsymbol\epsilon = \boldsymbol{\epsilon}^e + \boldsymbol{\epsilon}^p\)</span> al calcular la deformación elástica.</p>
+<div class="math notranslate nohighlight">
+\[\boldsymbol{\epsilon}^e = \frac{1}{E}\left[(1+\nu)\boldsymbol{\sigma} - \nu\boldsymbol{I}\text{tr}(\boldsymbol\sigma)\right]\]</div>
+<p>En resumen se utilizan las siguiente ecuaciones para calcular las curvas para un estado de tensión dado:</p>
+<div class="math notranslate nohighlight">
+\[\boldsymbol{\sigma} = \frac{Y(\bar{\epsilon}^p)}{\sigma_{eq}(\boldsymbol\sigma_{ref})} \boldsymbol{\sigma_{ref}}\]</div>
+<div class="math notranslate nohighlight">
+\[\boldsymbol{\epsilon}^p = \bar{\epsilon}^p\frac{\partial\sigma_{eq}}{\partial \boldsymbol\sigma}(\boldsymbol\sigma_{ref})\]</div>
+<div class="math notranslate nohighlight">
+\[\boldsymbol{\epsilon}^e = \frac{1}{E}\left[(1+\nu)\boldsymbol{\sigma} - \nu\boldsymbol{I}\text{tr}(\boldsymbol\sigma)\right]\]</div>
+<div class="math notranslate nohighlight">
+\[\boldsymbol{\epsilon} = \boldsymbol{\epsilon}^e + \boldsymbol{\epsilon}^p\]</div>
+<section id="ajuste-de-traccion-y-biaxial">
+<h2><a class="toc-backref" href="#id3" role="doc-backlink">Ajuste de tracción y biaxial</a><a class="headerlink" href="#ajuste-de-traccion-y-biaxial" title="Permalink to this heading">¶</a></h2>
+<p>El siguiente ejemplo demuestra como se ajusta el modelo elastoplastico
+con fluencia Von Mises y endurecimiento de Voce utilizando la librería
+lmfit. Esto para ajustar una curva biaxial-equiaxial y un ensayo de
+tracción.</p>
+<div class="literal-block-wrapper docutils container" id="id1">
+<div class="code-block-caption"><span class="caption-text">elastoplastic_isotropic_fit.py</span><a class="headerlink" href="#id1" title="Permalink to this code">¶</a></div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos">  1</span><span class="kn">import</span> <span class="nn">lmfit</span>
+<span class="linenos">  2</span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="linenos">  3</span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="linenos">  4</span>
+<span class="linenos">  5</span><span class="kn">from</span> <span class="nn">ftmpa.experiments</span> <span class="kn">import</span> <span class="n">ExpState</span><span class="p">,</span> <span class="n">ExpData</span>
+<span class="linenos">  6</span><span class="kn">from</span> <span class="nn">ftmpa.models.handlers.elasticity</span> <span class="kn">import</span> <span class="n">HandlerHooke</span>
+<span class="linenos">  7</span><span class="kn">from</span> <span class="nn">ftmpa.models.handlers.autoModels</span> <span class="kn">import</span> <span class="n">AutoElastoPlasticAsociated</span>
+<span class="linenos">  8</span><span class="kn">from</span> <span class="nn">ftmpa.for_lmfit</span> <span class="kn">import</span> <span class="n">IterPrintForLmfit</span><span class="p">,</span> <span class="n">ResidualScalarForLmfit</span>
+<span class="linenos">  9</span>
+<span class="linenos"> 10</span><span class="kn">from</span> <span class="nn">ftmpa.models</span> <span class="kn">import</span> <span class="n">hardening</span><span class="p">,</span> <span class="n">elasticity</span>
+<span class="linenos"> 11</span><span class="kn">from</span> <span class="nn">ftmpa.models.handlers.hardening</span> <span class="kn">import</span> <span class="n">HandlerVoceMod</span>
+<span class="linenos"> 12</span><span class="kn">from</span> <span class="nn">ftmpa.models.handlers.yields</span> <span class="kn">import</span> <span class="n">HandlerVonMises</span>
+<span class="linenos"> 13</span>
+<span class="linenos"> 14</span><span class="c1"># Making virtual experiment</span>
+<span class="linenos"> 15</span><span class="n">strain_p</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
+<span class="linenos"> 16</span><span class="n">stress</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">strain_p</span><span class="p">),</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+<span class="linenos"> 17</span><span class="n">stress</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">hardening</span><span class="o">.</span><span class="n">VoceMod</span><span class="p">(</span><span class="n">sig0</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">q</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">10</span><span class="p">)(</span><span class="n">strain_p</span><span class="p">)</span>
+<span class="linenos"> 18</span><span class="n">strain_e</span> <span class="o">=</span> <span class="n">elasticity</span><span class="o">.</span><span class="n">Hooke</span><span class="p">(</span><span class="n">E</span><span class="o">=</span><span class="mf">100e3</span><span class="p">,</span> <span class="n">nu</span><span class="o">=</span><span class="mf">0.3</span><span class="p">)</span><span class="o">.</span><span class="n">strain</span><span class="p">(</span><span class="n">stress</span><span class="o">=</span><span class="n">stress</span><span class="p">)[:,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+<span class="linenos"> 19</span><span class="n">strain_tensile</span> <span class="o">=</span> <span class="n">strain_p</span> <span class="o">+</span> <span class="n">strain_e</span>
+<span class="linenos"> 20</span>
+<span class="linenos"> 21</span><span class="n">elastic_stress</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+<span class="linenos"> 22</span>                              <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+<span class="linenos"> 23</span>                              <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]],</span>
+<span class="linenos"> 24</span>                           <span class="p">[[</span><span class="n">stress</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+<span class="linenos"> 25</span>                              <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+<span class="linenos"> 26</span>                              <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]],</span>
+<span class="linenos"> 27</span>                           <span class="mi">50</span><span class="p">)</span>
+<span class="linenos"> 28</span>
+<span class="linenos"> 29</span><span class="n">elastic_strain</span> <span class="o">=</span> <span class="n">elasticity</span><span class="o">.</span><span class="n">Hooke</span><span class="p">(</span>
+<span class="linenos"> 30</span>   <span class="n">E</span><span class="o">=</span><span class="mf">100e3</span><span class="p">,</span> <span class="n">nu</span><span class="o">=</span><span class="mf">0.3</span><span class="p">)</span><span class="o">.</span><span class="n">strain</span><span class="p">(</span><span class="n">elastic_stress</span><span class="p">)[:,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+<span class="linenos"> 31</span>
+<span class="linenos"> 32</span><span class="n">strain_tensile</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">elastic_strain</span><span class="p">,</span> <span class="n">strain_tensile</span><span class="p">))</span>
+<span class="linenos"> 33</span><span class="n">stress_tensile</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">elastic_stress</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">stress</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]))</span>
+<span class="linenos"> 34</span>
+<span class="linenos"> 35</span><span class="n">stress</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">stress</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+<span class="linenos"> 36</span><span class="n">strain_e</span> <span class="o">=</span> <span class="n">elasticity</span><span class="o">.</span><span class="n">Hooke</span><span class="p">(</span><span class="n">E</span><span class="o">=</span><span class="mf">100e3</span><span class="p">,</span> <span class="n">nu</span><span class="o">=</span><span class="mf">0.3</span><span class="p">)</span><span class="o">.</span><span class="n">strain</span><span class="p">(</span><span class="n">stress</span><span class="o">=</span><span class="n">stress</span><span class="p">)[:,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+<span class="linenos"> 37</span><span class="n">strain_biaxial</span> <span class="o">=</span> <span class="n">strain_p</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span><span class="o">/</span><span class="mf">2.0</span> <span class="o">+</span> <span class="n">strain_e</span>
+<span class="linenos"> 38</span><span class="n">elastic_stress</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+<span class="linenos"> 39</span>                              <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+<span class="linenos"> 40</span>                              <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]],</span>
+<span class="linenos"> 41</span>                           <span class="p">[[</span><span class="n">stress</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+<span class="linenos"> 42</span>                              <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">stress</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="mi">0</span><span class="p">],</span>
+<span class="linenos"> 43</span>                              <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]],</span>
+<span class="linenos"> 44</span>                           <span class="mi">50</span><span class="p">)</span>
+<span class="linenos"> 45</span><span class="n">elastic_strain</span> <span class="o">=</span> <span class="n">elasticity</span><span class="o">.</span><span class="n">Hooke</span><span class="p">(</span>
+<span class="linenos"> 46</span>   <span class="n">E</span><span class="o">=</span><span class="mf">100e3</span><span class="p">,</span> <span class="n">nu</span><span class="o">=</span><span class="mf">0.3</span><span class="p">)</span><span class="o">.</span><span class="n">strain</span><span class="p">(</span><span class="n">elastic_stress</span><span class="p">)[:,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+<span class="linenos"> 47</span><span class="n">strain_biaxial</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">elastic_strain</span><span class="p">,</span> <span class="n">strain_biaxial</span><span class="p">))</span>
+<span class="linenos"> 48</span><span class="n">stress_biaxial</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">elastic_stress</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">stress</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]))</span>
+<span class="linenos"> 49</span>
+<span class="linenos"> 50</span><span class="n">stress_tensile</span> <span class="o">+=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">2.1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">stress_tensile</span><span class="p">))</span>
+<span class="linenos"> 51</span><span class="n">stress_biaxial</span> <span class="o">+=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">2.1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">stress_biaxial</span><span class="p">))</span>
+<span class="linenos"> 52</span>
+<span class="linenos"> 53</span><span class="c1"># Define the parameters of models</span>
+<span class="linenos"> 54</span><span class="n">params</span> <span class="o">=</span> <span class="n">lmfit</span><span class="o">.</span><span class="n">Parameters</span><span class="p">()</span>
+<span class="linenos"> 55</span>
+<span class="linenos"> 56</span><span class="c1"># Define elastic parameters</span>
+<span class="linenos"> 57</span><span class="n">params</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s1">&#39;E&#39;</span><span class="p">,</span> <span class="mf">100e3</span><span class="p">,</span> <span class="n">vary</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="linenos"> 58</span><span class="n">params</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s1">&#39;nu&#39;</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">,</span> <span class="n">vary</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="linenos"> 59</span>
+<span class="linenos"> 60</span><span class="c1"># Define hardening parameters</span>
+<span class="linenos"> 61</span><span class="n">params</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s1">&#39;sig0&#39;</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="n">vary</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="linenos"> 62</span><span class="n">params</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s1">&#39;k&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">vary</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="linenos"> 63</span><span class="n">params</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s1">&#39;q&#39;</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="nb">min</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="nb">max</span><span class="o">=</span><span class="mf">1000.0</span><span class="p">)</span>
+<span class="linenos"> 64</span><span class="n">params</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s1">&#39;n&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="nb">min</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="nb">max</span><span class="o">=</span><span class="mf">1000.0</span><span class="p">)</span>
+<span class="linenos"> 65</span>
+<span class="linenos"> 66</span>
+<span class="linenos"> 67</span><span class="c1"># Define the name of parameters for models</span>
+<span class="linenos"> 68</span><span class="n">h_elasticity</span> <span class="o">=</span> <span class="n">HandlerHooke</span><span class="p">(</span><span class="n">E</span><span class="o">=</span><span class="s2">&quot;E&quot;</span><span class="p">,</span> <span class="n">nu</span><span class="o">=</span><span class="s2">&quot;nu&quot;</span><span class="p">)</span>
+<span class="linenos"> 69</span><span class="n">h_hardening</span> <span class="o">=</span> <span class="n">HandlerVoceMod</span><span class="p">(</span><span class="n">sig0</span><span class="o">=</span><span class="s2">&quot;sig0&quot;</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="s2">&quot;k&quot;</span><span class="p">,</span> <span class="n">q</span><span class="o">=</span><span class="s2">&quot;q&quot;</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="s2">&quot;n&quot;</span><span class="p">)</span>
+<span class="linenos"> 70</span><span class="n">h_yield</span> <span class="o">=</span> <span class="n">HandlerVonMises</span><span class="p">()</span>
+<span class="linenos"> 71</span>
+<span class="linenos"> 72</span><span class="c1"># Define the auto calc</span>
+<span class="linenos"> 73</span><span class="c1"># this model calc the stress-strain curve for a range of equivalent plastic strain</span>
+<span class="linenos"> 74</span><span class="n">model</span> <span class="o">=</span> <span class="n">AutoElastoPlasticAsociated</span><span class="p">(</span><span class="n">h_yield</span><span class="o">=</span><span class="n">h_yield</span><span class="p">,</span>
+<span class="linenos"> 75</span>                                   <span class="n">h_hardening</span><span class="o">=</span><span class="n">h_hardening</span><span class="p">,</span>
+<span class="linenos"> 76</span>                                   <span class="n">h_elasticity</span><span class="o">=</span><span class="n">h_elasticity</span><span class="p">,</span>
+<span class="linenos"> 77</span>                                   <span class="n">strain_plas_max</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+<span class="linenos"> 78</span>
+<span class="linenos"> 79</span><span class="c1"># Define the experiment and the function to obtain the results for the tensor stress and strain</span>
+<span class="linenos"> 80</span><span class="n">tensile</span> <span class="o">=</span> <span class="n">ExpData</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">strain_tensile</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="n">stress_tensile</span><span class="p">,</span>
+<span class="linenos"> 81</span>                  <span class="n">model_data</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;x&#39;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">stress</span><span class="p">,</span> <span class="n">strain</span><span class="p">:</span> <span class="n">strain</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+<span class="linenos"> 82</span>                              <span class="s1">&#39;y&#39;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">stress</span><span class="p">,</span> <span class="n">strain</span><span class="p">:</span> <span class="n">stress</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]}</span>
+<span class="linenos"> 83</span>                  <span class="p">)</span>
+<span class="linenos"> 84</span>
+<span class="linenos"> 85</span><span class="n">biaxial</span> <span class="o">=</span> <span class="n">ExpData</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">strain_biaxial</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="n">stress_biaxial</span><span class="p">,</span>
+<span class="linenos"> 86</span>                  <span class="n">model_data</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;x&#39;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">stress</span><span class="p">,</span> <span class="n">strain</span><span class="p">:</span> <span class="n">strain</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+<span class="linenos"> 87</span>                              <span class="s1">&#39;y&#39;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">stress</span><span class="p">,</span> <span class="n">strain</span><span class="p">:</span> <span class="n">stress</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]}</span>
+<span class="linenos"> 88</span>                  <span class="p">)</span>
+<span class="linenos"> 89</span>
+<span class="linenos"> 90</span><span class="c1"># Define the experiment load status</span>
+<span class="linenos"> 91</span><span class="n">exp_loads_tensile</span> <span class="o">=</span> <span class="n">ExpState</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span>
+<span class="linenos"> 92</span>                           <span class="n">results_test</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;exp1&#39;</span><span class="p">:</span> <span class="n">tensile</span><span class="p">},</span>
+<span class="linenos"> 93</span>                           <span class="n">load_state</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">))</span>
+<span class="linenos"> 94</span>
+<span class="linenos"> 95</span><span class="n">exp_loads_biaxial</span> <span class="o">=</span> <span class="n">ExpState</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span>
+<span class="linenos"> 96</span>                           <span class="n">results_test</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;exp1&#39;</span><span class="p">:</span> <span class="n">biaxial</span><span class="p">},</span>
+<span class="linenos"> 97</span>                           <span class="n">load_state</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">))</span>
+<span class="linenos"> 98</span>
+<span class="linenos"> 99</span><span class="c1"># Minimize the function</span>
+<span class="linenos">100</span><span class="n">out</span> <span class="o">=</span> <span class="n">lmfit</span><span class="o">.</span><span class="n">minimize</span><span class="p">(</span><span class="n">ResidualScalarForLmfit</span><span class="p">([</span><span class="n">exp_loads_tensile</span><span class="p">,</span> <span class="n">exp_loads_biaxial</span><span class="p">]),</span>
+<span class="linenos">101</span>                     <span class="n">params</span><span class="p">,</span>
+<span class="linenos">102</span>                     <span class="n">iter_cb</span><span class="o">=</span><span class="n">IterPrintForLmfit</span><span class="p">(),</span>
+<span class="linenos">103</span>                     <span class="n">method</span><span class="o">=</span><span class="s2">&quot;ampgo&quot;</span>
+<span class="linenos">104</span>                     <span class="p">)</span>
+<span class="linenos">105</span><span class="n">lmfit</span><span class="o">.</span><span class="n">report_fit</span><span class="p">(</span><span class="n">out</span><span class="o">.</span><span class="n">params</span><span class="p">)</span>
+<span class="linenos">106</span><span class="n">final_params</span> <span class="o">=</span> <span class="n">out</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">valuesdict</span><span class="p">()</span>
+<span class="linenos">107</span>
+<span class="linenos">108</span><span class="c1"># Show the fitted parameters</span>
+<span class="linenos">109</span><span class="n">data_fitted_tensile</span> <span class="o">=</span> <span class="n">exp_loads_tensile</span><span class="o">.</span><span class="n">data_to_graph</span><span class="p">(</span><span class="n">final_params</span><span class="p">)</span>
+<span class="linenos">110</span><span class="n">data_fitted_biaxial</span> <span class="o">=</span> <span class="n">exp_loads_biaxial</span><span class="o">.</span><span class="n">data_to_graph</span><span class="p">(</span><span class="n">final_params</span><span class="p">)</span>
+<span class="linenos">111</span><span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">data_fitted_tensile</span><span class="p">[</span><span class="s1">&#39;exp1&#39;</span><span class="p">][</span><span class="s1">&#39;x_exp&#39;</span><span class="p">],</span>
+<span class="linenos">112</span>         <span class="n">data_fitted_tensile</span><span class="p">[</span><span class="s1">&#39;exp1&#39;</span><span class="p">][</span><span class="s1">&#39;y_exp&#39;</span><span class="p">])</span>
+<span class="linenos">113</span><span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">data_fitted_tensile</span><span class="p">[</span><span class="s1">&#39;exp1&#39;</span><span class="p">][</span><span class="s1">&#39;x_model&#39;</span><span class="p">],</span>
+<span class="linenos">114</span>         <span class="n">data_fitted_tensile</span><span class="p">[</span><span class="s1">&#39;exp1&#39;</span><span class="p">][</span><span class="s1">&#39;y_model&#39;</span><span class="p">])</span>
+<span class="linenos">115</span><span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+<span class="linenos">116</span>
+<span class="linenos">117</span><span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">data_fitted_biaxial</span><span class="p">[</span><span class="s1">&#39;exp1&#39;</span><span class="p">][</span><span class="s1">&#39;x_exp&#39;</span><span class="p">],</span>
+<span class="linenos">118</span>         <span class="n">data_fitted_biaxial</span><span class="p">[</span><span class="s1">&#39;exp1&#39;</span><span class="p">][</span><span class="s1">&#39;y_exp&#39;</span><span class="p">])</span>
+<span class="linenos">119</span><span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">data_fitted_biaxial</span><span class="p">[</span><span class="s1">&#39;exp1&#39;</span><span class="p">][</span><span class="s1">&#39;x_model&#39;</span><span class="p">],</span>
+<span class="linenos">120</span>         <span class="n">data_fitted_biaxial</span><span class="p">[</span><span class="s1">&#39;exp1&#39;</span><span class="p">][</span><span class="s1">&#39;y_model&#39;</span><span class="p">])</span>
+<span class="linenos">121</span><span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<p>El código de ejemplo se analizará por partes.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos">1</span><span class="kn">import</span> <span class="nn">lmfit</span>
+<span class="linenos">2</span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="linenos">3</span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+</pre></div>
+</div>
+<p>En esta sección se importa la librería lmfit que nos permitirá ajustar los modelos,
+numpy para trabajar datos y matplotlib para graficarlos.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos">5</span><span class="kn">from</span> <span class="nn">ftmpa.experiments</span> <span class="kn">import</span> <span class="n">ExpState</span><span class="p">,</span> <span class="n">ExpData</span>
+<span class="linenos">6</span><span class="kn">from</span> <span class="nn">ftmpa.models.handlers.elasticity</span> <span class="kn">import</span> <span class="n">HandlerHooke</span>
+<span class="linenos">7</span><span class="kn">from</span> <span class="nn">ftmpa.models.handlers.autoModels</span> <span class="kn">import</span> <span class="n">AutoElastoPlasticAsociated</span>
+<span class="linenos">8</span><span class="kn">from</span> <span class="nn">ftmpa.for_lmfit</span> <span class="kn">import</span> <span class="n">IterPrintForLmfit</span><span class="p">,</span> <span class="n">ResidualScalarForLmfit</span>
+</pre></div>
+</div>
+<p>Se importan las librerías propias de esta documentación, en esta parte no se daran
+detalles de ellas, pero sí mas adelante cuando se utilizen.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos">10</span><span class="kn">from</span> <span class="nn">ftmpa.models</span> <span class="kn">import</span> <span class="n">hardening</span><span class="p">,</span> <span class="n">elasticity</span>
+<span class="linenos">11</span><span class="kn">from</span> <span class="nn">ftmpa.models.handlers.hardening</span> <span class="kn">import</span> <span class="n">HandlerVoceMod</span>
+<span class="linenos">12</span><span class="kn">from</span> <span class="nn">ftmpa.models.handlers.yields</span> <span class="kn">import</span> <span class="n">HandlerVonMises</span>
+</pre></div>
+</div>
+<p>Se importan los modelos que nos permitiran crear experimentos virtuales.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos">14</span><span class="c1"># Making virtual experiment</span>
+<span class="linenos">15</span><span class="n">strain_p</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
+<span class="linenos">16</span><span class="n">stress</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">strain_p</span><span class="p">),</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+<span class="linenos">17</span><span class="n">stress</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">hardening</span><span class="o">.</span><span class="n">VoceMod</span><span class="p">(</span><span class="n">sig0</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">q</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">10</span><span class="p">)(</span><span class="n">strain_p</span><span class="p">)</span>
+<span class="linenos">18</span><span class="n">strain_e</span> <span class="o">=</span> <span class="n">elasticity</span><span class="o">.</span><span class="n">Hooke</span><span class="p">(</span><span class="n">E</span><span class="o">=</span><span class="mf">100e3</span><span class="p">,</span> <span class="n">nu</span><span class="o">=</span><span class="mf">0.3</span><span class="p">)</span><span class="o">.</span><span class="n">strain</span><span class="p">(</span><span class="n">stress</span><span class="o">=</span><span class="n">stress</span><span class="p">)[:,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+<span class="linenos">19</span><span class="n">strain_tensile</span> <span class="o">=</span> <span class="n">strain_p</span> <span class="o">+</span> <span class="n">strain_e</span>
+<span class="linenos">20</span>
+<span class="linenos">21</span><span class="n">elastic_stress</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+<span class="linenos">22</span>                              <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+<span class="linenos">23</span>                              <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]],</span>
+<span class="linenos">24</span>                           <span class="p">[[</span><span class="n">stress</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+<span class="linenos">25</span>                              <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+<span class="linenos">26</span>                              <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]],</span>
+<span class="linenos">27</span>                           <span class="mi">50</span><span class="p">)</span>
+<span class="linenos">28</span>
+<span class="linenos">29</span><span class="n">elastic_strain</span> <span class="o">=</span> <span class="n">elasticity</span><span class="o">.</span><span class="n">Hooke</span><span class="p">(</span>
+<span class="linenos">30</span>   <span class="n">E</span><span class="o">=</span><span class="mf">100e3</span><span class="p">,</span> <span class="n">nu</span><span class="o">=</span><span class="mf">0.3</span><span class="p">)</span><span class="o">.</span><span class="n">strain</span><span class="p">(</span><span class="n">elastic_stress</span><span class="p">)[:,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+<span class="linenos">31</span>
+<span class="linenos">32</span><span class="n">strain_tensile</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">elastic_strain</span><span class="p">,</span> <span class="n">strain_tensile</span><span class="p">))</span>
+<span class="linenos">33</span><span class="n">stress_tensile</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">elastic_stress</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">stress</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]))</span>
+<span class="linenos">34</span>
+<span class="linenos">35</span><span class="n">stress</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">stress</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+<span class="linenos">36</span><span class="n">strain_e</span> <span class="o">=</span> <span class="n">elasticity</span><span class="o">.</span><span class="n">Hooke</span><span class="p">(</span><span class="n">E</span><span class="o">=</span><span class="mf">100e3</span><span class="p">,</span> <span class="n">nu</span><span class="o">=</span><span class="mf">0.3</span><span class="p">)</span><span class="o">.</span><span class="n">strain</span><span class="p">(</span><span class="n">stress</span><span class="o">=</span><span class="n">stress</span><span class="p">)[:,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+<span class="linenos">37</span><span class="n">strain_biaxial</span> <span class="o">=</span> <span class="n">strain_p</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span><span class="o">/</span><span class="mf">2.0</span> <span class="o">+</span> <span class="n">strain_e</span>
+<span class="linenos">38</span><span class="n">elastic_stress</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+<span class="linenos">39</span>                              <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+<span class="linenos">40</span>                              <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]],</span>
+<span class="linenos">41</span>                           <span class="p">[[</span><span class="n">stress</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+<span class="linenos">42</span>                              <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">stress</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="mi">0</span><span class="p">],</span>
+<span class="linenos">43</span>                              <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]],</span>
+<span class="linenos">44</span>                           <span class="mi">50</span><span class="p">)</span>
+<span class="linenos">45</span><span class="n">elastic_strain</span> <span class="o">=</span> <span class="n">elasticity</span><span class="o">.</span><span class="n">Hooke</span><span class="p">(</span>
+<span class="linenos">46</span>   <span class="n">E</span><span class="o">=</span><span class="mf">100e3</span><span class="p">,</span> <span class="n">nu</span><span class="o">=</span><span class="mf">0.3</span><span class="p">)</span><span class="o">.</span><span class="n">strain</span><span class="p">(</span><span class="n">elastic_stress</span><span class="p">)[:,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+<span class="linenos">47</span><span class="n">strain_biaxial</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">elastic_strain</span><span class="p">,</span> <span class="n">strain_biaxial</span><span class="p">))</span>
+<span class="linenos">48</span><span class="n">stress_biaxial</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">elastic_stress</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">stress</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]))</span>
+<span class="linenos">49</span>
+<span class="linenos">50</span><span class="n">stress_tensile</span> <span class="o">+=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">2.1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">stress_tensile</span><span class="p">))</span>
+<span class="linenos">51</span><span class="n">stress_biaxial</span> <span class="o">+=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">2.1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">stress_biaxial</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>Se crean datos virtuales para un ensayo de tracción y uno
+biaxial, además se le agrega ruido.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos">54</span><span class="c1"># Define the parameters of models</span>
+<span class="linenos">55</span><span class="n">params</span> <span class="o">=</span> <span class="n">lmfit</span><span class="o">.</span><span class="n">Parameters</span><span class="p">()</span>
+<span class="linenos">56</span>
+<span class="linenos">57</span><span class="c1"># Define elastic parameters</span>
+<span class="linenos">58</span><span class="n">params</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s1">&#39;E&#39;</span><span class="p">,</span> <span class="mf">100e3</span><span class="p">,</span> <span class="n">vary</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="linenos">59</span><span class="n">params</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s1">&#39;nu&#39;</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">,</span> <span class="n">vary</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="linenos">60</span>
+<span class="linenos">61</span><span class="c1"># Define hardening parameters</span>
+<span class="linenos">62</span><span class="n">params</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s1">&#39;sig0&#39;</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="n">vary</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="linenos">63</span><span class="n">params</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s1">&#39;k&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">vary</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="linenos">64</span><span class="n">params</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s1">&#39;q&#39;</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="nb">min</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="nb">max</span><span class="o">=</span><span class="mf">1000.0</span><span class="p">)</span>
+<span class="linenos">65</span><span class="n">params</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s1">&#39;n&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="nb">min</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="nb">max</span><span class="o">=</span><span class="mf">1000.0</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>En estas líneas se definen TODOS los parametros que van a necesitar los modelos, por medio de
+parámetros de lmfit. Aca se definene los valores iniciales de los parámetros, cuales varían y en que rangos.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos">67</span><span class="c1"># Define the name of parameters for models</span>
+<span class="linenos">68</span><span class="n">h_elasticity</span> <span class="o">=</span> <span class="n">HandlerHooke</span><span class="p">(</span><span class="n">E</span><span class="o">=</span><span class="s2">&quot;E&quot;</span><span class="p">,</span> <span class="n">nu</span><span class="o">=</span><span class="s2">&quot;nu&quot;</span><span class="p">)</span>
+<span class="linenos">69</span><span class="n">h_hardening</span> <span class="o">=</span> <span class="n">HandlerVoceMod</span><span class="p">(</span><span class="n">sig0</span><span class="o">=</span><span class="s2">&quot;sig0&quot;</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="s2">&quot;k&quot;</span><span class="p">,</span> <span class="n">q</span><span class="o">=</span><span class="s2">&quot;q&quot;</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="s2">&quot;n&quot;</span><span class="p">)</span>
+<span class="linenos">70</span><span class="n">h_yield</span> <span class="o">=</span> <span class="n">HandlerVonMises</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Se define que el manejador de la elasticidad será HandleHooke,
+que el parámetro del modelo de elasticidad “E” se pasara con nombre de “E”
+y que el parámetro “nu” se pasara con nombre “nu”.
+Lo mismo con la ley de endurecimiento HandlerVoceMod. Esta ley tiene la siguiente
+forma:</p>
+<div class="math notranslate nohighlight">
+\[Y(\bar{\epsilon}^p) = \sigma_0 k\bar{\epsilon}^p + Q\left[1-\exp(-n\bar{\epsilon}^p)\right]\]</div>
+<p>Por lo tanto se define que <span class="math notranslate nohighlight">\(k=0\)</span> para que sea la función de voce.</p>
+<p>En la última línea se define como Von Mises la superficie de fluencia.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos">72</span><span class="c1"># Define the auto calc</span>
+<span class="linenos">73</span><span class="c1"># this model calc the stress-strain curve for a range of equivalent plastic strain</span>
+<span class="linenos">74</span><span class="n">model</span> <span class="o">=</span> <span class="n">AutoElastoPlasticAsociated</span><span class="p">(</span><span class="n">h_yield</span><span class="o">=</span><span class="n">h_yield</span><span class="p">,</span>
+<span class="linenos">75</span>                                   <span class="n">h_hardening</span><span class="o">=</span><span class="n">h_hardening</span><span class="p">,</span>
+<span class="linenos">76</span>                                   <span class="n">h_elasticity</span><span class="o">=</span><span class="n">h_elasticity</span><span class="p">,</span>
+<span class="linenos">77</span>                                   <span class="n">strain_plas_max</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Se define el modelo que va a automaticamente crear “simulaciones” para el caso en estudio.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos">79</span><span class="c1"># Define the experiment and the function to obtain the results for the tensor stress and strain</span>
+<span class="linenos">80</span><span class="n">tensile</span> <span class="o">=</span> <span class="n">ExpData</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">strain_tensile</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="n">stress_tensile</span><span class="p">,</span>
+<span class="linenos">81</span>                  <span class="n">model_data</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;x&#39;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">stress</span><span class="p">,</span> <span class="n">strain</span><span class="p">:</span> <span class="n">strain</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+<span class="linenos">82</span>                              <span class="s1">&#39;y&#39;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">stress</span><span class="p">,</span> <span class="n">strain</span><span class="p">:</span> <span class="n">stress</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]}</span>
+<span class="linenos">83</span>                  <span class="p">)</span>
+<span class="linenos">84</span>
+<span class="linenos">85</span><span class="n">biaxial</span> <span class="o">=</span> <span class="n">ExpData</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">strain_biaxial</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="n">stress_biaxial</span><span class="p">,</span>
+<span class="linenos">86</span>                  <span class="n">model_data</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;x&#39;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">stress</span><span class="p">,</span> <span class="n">strain</span><span class="p">:</span> <span class="n">strain</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+<span class="linenos">87</span>                              <span class="s1">&#39;y&#39;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">stress</span><span class="p">,</span> <span class="n">strain</span><span class="p">:</span> <span class="n">stress</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]}</span>
+<span class="linenos">88</span>                  <span class="p">)</span>
+</pre></div>
+</div>
+<p>Aquí se definen los experimentos y como se obtienen sus resultados respecto del tensor
+<span class="math notranslate nohighlight">\(\boldsymbol \sigma\)</span> (<code class="code docutils literal notranslate"><span class="pre">stress</span></code>) y <span class="math notranslate nohighlight">\(\boldsymbol \epsilon\)</span> (<code class="code docutils literal notranslate"><span class="pre">strain</span></code>).</p>
+<p>En este caso se construyo la curva como deformación en el eje “x” y como esfuerzo en el eje “y”. Por lo tanto
+se necesita que el dato “x” sea la deformacion <span class="math notranslate nohighlight">\(\epsilon_{xx}\)</span> (<code class="code docutils literal notranslate"><span class="pre">strain[...,0,0]</span></code>) y que el dato “y” sea
+el esfuerzo <span class="math notranslate nohighlight">\(\sigma_{xx}\)</span> (<code class="code docutils literal notranslate"><span class="pre">stress[...,0,0]</span></code>). Para el caso biaxial, se toma el par <span class="math notranslate nohighlight">\(\epsilon_{yy}\)</span>,
+<span class="math notranslate nohighlight">\(\sigma_{yy}\)</span>, aunque también podría ser el “xx”.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos">90</span><span class="c1"># Define the experiment load status</span>
+<span class="linenos">91</span><span class="n">exp_loads_tensile</span> <span class="o">=</span> <span class="n">ExpState</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span>
+<span class="linenos">92</span>                           <span class="n">results_test</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;exp1&#39;</span><span class="p">:</span> <span class="n">tensile</span><span class="p">},</span>
+<span class="linenos">93</span>                           <span class="n">load_state</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">))</span>
+<span class="linenos">94</span>
+<span class="linenos">95</span><span class="n">exp_loads_biaxial</span> <span class="o">=</span> <span class="n">ExpState</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span>
+<span class="linenos">96</span>                           <span class="n">results_test</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;exp1&#39;</span><span class="p">:</span> <span class="n">biaxial</span><span class="p">},</span>
+<span class="linenos">97</span>                           <span class="n">load_state</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>Aca es donde se le define al programa que estado de tensión se está aplicando y que modelo
+lo debe representar. El parámetro <code class="code docutils literal notranslate"><span class="pre">model</span></code> representa el modelo que se definió en la
+línea 74 y que es el <code class="code docutils literal notranslate"><span class="pre">AutoElastoPlasticAsociated</span></code>.</p>
+<p>El parámetro <code class="code docutils literal notranslate"><span class="pre">result_test</span></code> es un diccionario donde se deben colocar todos los
+ensayos experimentales que tengan el mismo estado de tensión, en este caso una
+tracción simple para el primero, y un estado biaxial para el segundo.</p>
+<p>En <code class="code docutils literal notranslate"><span class="pre">load_state</span></code> se debe definir cual es el estado de tensiones que se está
+imponinendo en el ensayo. Para el primer caso como es un ensayo de tracción simple,
+corresponde a una matriz que solo tiene esfuerzos en <span class="math notranslate nohighlight">\(\sigma_{xx}\)</span>. Esto se
+representa por el código <code class="code docutils literal notranslate"><span class="pre">np.array([[1,0,0],[0,0,0],[0,0,0]],</span> <span class="pre">dtype=float)</span></code></p>
+<p>Para el segundo caso como es un ensayo biaxial-equiaxial,
+corresponde a una matriz que solo tiene esfuerzos en <span class="math notranslate nohighlight">\(\sigma_{xx}\)</span> y
+<span class="math notranslate nohighlight">\(\sigma_{yy}\)</span>. Esto se representa por el código
+<code class="code docutils literal notranslate"><span class="pre">np.array([[1,0,0],[0,1,0],[0,0,0]],</span> <span class="pre">dtype=float)</span></code></p>
+<p>Con esto queda todo definido para las funciones de la librería lo siguiente es para
+realizar la minimización del residuo.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 99</span><span class="c1"># Minimize the function</span>
+<span class="linenos">100</span><span class="n">out</span> <span class="o">=</span> <span class="n">lmfit</span><span class="o">.</span><span class="n">minimize</span><span class="p">(</span><span class="n">ResidualScalarForLmfit</span><span class="p">([</span><span class="n">exp_loads_tensile</span><span class="p">,</span> <span class="n">exp_loads_biaxial</span><span class="p">]),</span>
+<span class="linenos">101</span>                     <span class="n">params</span><span class="p">,</span>
+<span class="linenos">102</span>                     <span class="n">iter_cb</span><span class="o">=</span><span class="n">IterPrintForLmfit</span><span class="p">(),</span>
+<span class="linenos">103</span>                     <span class="n">method</span><span class="o">=</span><span class="s2">&quot;ampgo&quot;</span>
+<span class="linenos">104</span>                     <span class="p">)</span>
+<span class="linenos">105</span><span class="n">lmfit</span><span class="o">.</span><span class="n">report_fit</span><span class="p">(</span><span class="n">out</span><span class="o">.</span><span class="n">params</span><span class="p">)</span>
+<span class="linenos">106</span><span class="n">final_params</span> <span class="o">=</span> <span class="n">out</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">valuesdict</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>En este codigo se utiliza <code class="code docutils literal notranslate"><span class="pre">lmfit</span></code> para realizar la minimización, esta librería ya trae incorporadas
+unas funciones de residuos y de iteraciones que son opcionales <code class="code docutils literal notranslate"><span class="pre">ResidualScalarForLmfit([...])</span></code> y
+<code class="code docutils literal notranslate"><span class="pre">IterPrintForLmfit()</span></code>. En la inicialización de <code class="code docutils literal notranslate"><span class="pre">ResidualVectorForLmfit([...])</span></code> debe introducir
+todos los estados de tensiones que se deban ajustar.</p>
+<p>Cabe destacar que en este caso se está utilizando el método ampgo, que es un minimizador
+global.</p>
+<p>Luego que la minimización se haya realizado (línea 100), se reporta por la salida estandar el reporte final del
+ajuste mendiante la línea 101.</p>
+<p>Finalmente se guardan los parámetros finales, como diccionario, del ajuste en la variable <code class="code docutils literal notranslate"><span class="pre">final_params</span></code>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos">108</span><span class="c1"># Show the fitted parameters</span>
+<span class="linenos">109</span><span class="n">data_fitted_tensile</span> <span class="o">=</span> <span class="n">exp_loads_tensile</span><span class="o">.</span><span class="n">data_to_graph</span><span class="p">(</span><span class="n">final_params</span><span class="p">)</span>
+<span class="linenos">110</span><span class="n">data_fitted_biaxial</span> <span class="o">=</span> <span class="n">exp_loads_biaxial</span><span class="o">.</span><span class="n">data_to_graph</span><span class="p">(</span><span class="n">final_params</span><span class="p">)</span>
+<span class="linenos">111</span><span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">data_fitted_tensile</span><span class="p">[</span><span class="s1">&#39;exp1&#39;</span><span class="p">][</span><span class="s1">&#39;x_exp&#39;</span><span class="p">],</span>
+<span class="linenos">112</span>         <span class="n">data_fitted_tensile</span><span class="p">[</span><span class="s1">&#39;exp1&#39;</span><span class="p">][</span><span class="s1">&#39;y_exp&#39;</span><span class="p">])</span>
+<span class="linenos">113</span><span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">data_fitted_tensile</span><span class="p">[</span><span class="s1">&#39;exp1&#39;</span><span class="p">][</span><span class="s1">&#39;x_model&#39;</span><span class="p">],</span>
+<span class="linenos">114</span>         <span class="n">data_fitted_tensile</span><span class="p">[</span><span class="s1">&#39;exp1&#39;</span><span class="p">][</span><span class="s1">&#39;y_model&#39;</span><span class="p">])</span>
+<span class="linenos">115</span><span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+<span class="linenos">116</span>
+<span class="linenos">117</span><span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">data_fitted_biaxial</span><span class="p">[</span><span class="s1">&#39;exp1&#39;</span><span class="p">][</span><span class="s1">&#39;x_exp&#39;</span><span class="p">],</span>
+<span class="linenos">118</span>         <span class="n">data_fitted_biaxial</span><span class="p">[</span><span class="s1">&#39;exp1&#39;</span><span class="p">][</span><span class="s1">&#39;y_exp&#39;</span><span class="p">])</span>
+<span class="linenos">119</span><span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">data_fitted_biaxial</span><span class="p">[</span><span class="s1">&#39;exp1&#39;</span><span class="p">][</span><span class="s1">&#39;x_model&#39;</span><span class="p">],</span>
+<span class="linenos">120</span>         <span class="n">data_fitted_biaxial</span><span class="p">[</span><span class="s1">&#39;exp1&#39;</span><span class="p">][</span><span class="s1">&#39;y_model&#39;</span><span class="p">])</span>
+<span class="linenos">121</span><span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>En estas líneas se obtienen la curvas de los ajustes realizados y se grafican, la línea 109 y 110 realiza los cálculos
+con lo parámetros finales. Para cada estado de
+carga se pueden obtener sus ajustes, en este caso contamos con <code class="code docutils literal notranslate"><span class="pre">exp_loads_tensile</span></code> y <code class="code docutils literal notranslate"><span class="pre">exp_loads_biaxial,</span>
+<span class="pre">además</span> <span class="pre">cada</span> <span class="pre">uno</span> <span class="pre">tiene</span> <span class="pre">solo</span> <span class="pre">un</span> <span class="pre">ensayo</span> <span class="pre">:code:</span></code>’exp1’<cite>. Por lo tanto para obtener estos valores se debe indicar
+como :code:`data_fitted[‘exp1’]</cite>, dentro de este diccionario tenemos cuatro datos <code class="code docutils literal notranslate"><span class="pre">x_exp</span></code>
+los datos experimentales “x”, <code class="code docutils literal notranslate"><span class="pre">y_exp</span></code> los datos experimentales “y”, <code class="code docutils literal notranslate"><span class="pre">x_model</span></code> los datos “x” del modelo y
+<code class="code docutils literal notranslate"><span class="pre">y_model</span></code> los datos “y” del modelo.</p>
+<p>Con estos datos se grafica el ajuste realizado.</p>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">ftmpa</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="tutorials.html">Tutorials</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="install.html">Install</a></li>
+<li class="toctree-l2"><a class="reference internal" href="elastic_fitting.html">Elastic Fitting</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Isotropic Elastoplastic Fitting</a></li>
+</ul>
+</li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="tutorials.html">Tutorials</a><ul>
+      <li>Previous: <a href="elastic_fitting.html" title="previous chapter">Elastic Fitting</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2023, Matias Pacheco-Alarcon.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 6.2.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.13</a>
+      
+      |
+      <a href="../_sources/tutorials/isotropic_elastoplastic_fitting.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
